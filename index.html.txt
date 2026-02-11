@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CHECK MOBI - RỒNG THIÊNG</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --secondary: #7000ff;
+            --danger: #ff003c;
+            --success: #00ff88;
+            --warning: #ffbd00;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background: #000;
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- VIỀN RGB 7 MÀU XOAY CHUYỂN --- */
+        .rgb-border {
+            position: absolute;
+            inset: 0;
+            border: 4px solid;
+            border-image: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet) 1;
+            animation: borderRotate 3s infinite linear;
+            z-index: 100;
+            pointer-events: none;
+        }
+        @keyframes borderRotate {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        /* --- KHUNG ỨNG DỤNG --- */
+        .container {
+            width: 92%;
+            max-width: 450px;
+            height: 92vh;
+            background: rgba(5, 5, 5, 0.95);
+            border: 1px solid var(--primary);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            z-index: 10;
+            box-shadow: 0 0 50px rgba(0, 242, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        /* --- LOGO RỒNG SIÊU NGẦU --- */
+        .logo-box {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            margin: 0 auto 10px;
+        }
+        .dragon-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 15px var(--primary));
+            animation: dragonPulse 2s infinite alternate;
+        }
+        @keyframes dragonPulse {
+            from { transform: scale(1); filter: drop-shadow(0 0 8px var(--primary)); }
+            to { transform: scale(1.08); filter: drop-shadow(0 0 20px var(--secondary)); }
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.6rem;
+            text-align: center;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+        }
+
+        /* --- CÁC MÀN HÌNH --- */
+        .screen { display: none; height: 100%; overflow-y: auto; padding-right: 5px; }
+        .active { display: block; }
+
+        /* --- LOGIN --- */
+        .input-group { margin-top: 40px; }
+        .label-key { text-align: center; font-size: 0.9rem; color: var(--primary); margin-bottom: 15px; font-weight: bold; }
+        input {
+            width: 100%;
+            padding: 18px;
+            background: #111;
+            border: 2px solid var(--secondary);
+            color: var(--primary);
+            font-family: 'Orbitron';
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 1.2rem;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(90deg, var(--secondary), #4b0082);
+            border: none;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
+            cursor: pointer;
+            font-family: 'Orbitron';
+            box-shadow: 0 4px 15px rgba(112, 0, 255, 0.4);
+        }
+
+        /* --- THÔNG TIN CHI TIẾT --- */
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-left: 4px solid var(--primary);
+            padding: 12px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            border-radius: 4px;
+        }
+        .card-title {
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+        .row { display: flex; justify-content: space-between; margin: 6px 0; }
+        .label { color: #888; }
+        .value { color: #fff; font-weight: bold; }
+        .success { color: var(--success); }
+
+        /* --- HIỆU ỨNG QUÉT --- */
+        #scanner {
+            position: absolute; top:0; left:0; width:100%; height:3px;
+            background: var(--primary);
+            box-shadow: 0 0 20px var(--primary);
+            animation: scanMove 2s infinite linear;
+            display: none;
+            z-index: 50;
+        }
+        @keyframes scanMove { 0% { top: 0; } 100% { top: 100%; } }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="rgb-border"></div>
+
+<div class="container">
+    <div id="scanner"></div>
+
+    <div class="logo-box">
+        <svg class="dragon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L9 4L12 6L15 4L12 2Z" fill="var(--primary)"/>
+            <path d="M2 12C2 12 5 9 8 10C11 11 13 8 16 8C19 8 22 11 22 11L20 15H4L2 12Z" fill="var(--secondary)"/>
+            <path d="M7 15L5 22L12 19L19 22L17 15H7Z" fill="var(--primary)"/>
+            <circle cx="12" cy="12" r="1.5" fill="white"/>
+        </svg>
+    </div>
+
+    <h1>CHECK MOBI PRO</h1>
+
+    <div id="loginScreen" class="screen active">
+        <div class="input-group">
+            <p class="label-key">HỆ THỐNG ĐANG KHÓA</p>
+            <input type="password" id="key" placeholder="NHẬP KEY">
+            <button class="btn" onclick="login()">Kích Hoạt Hệ Thống</button>
+        </div>
+        <p style="margin-top: 40px; font-size: 0.7rem; color: #555; text-align: center; line-height: 1.5;">
+            Yêu cầu quyền truy cập hệ thống...<br>
+            Tương thích: Android, iOS, HarmonyOS
+        </p>
+    </div>
+
+    <div id="dashScreen" class="screen">
+        
+        <div class="card">
+            <div class="card-title"><span>DANH TÍNH THIẾT BỊ</span> <span>[LIVE]</span></div>
+            <div class="row"><span class="label">Tên thiết bị:</span> <span class="value" id="d_name">Đang quét...</span></div>
+            <div class="row"><span class="label">Nhà sản xuất:</span> <span class="value" id="d_vendor">...</span></div>
+            <div class="row"><span class="label">Nền tảng:</span> <span class="value" id="d_os">...</span></div>
+            <div class="row"><span class="label">Ngôn ngữ:</span> <span class="value" id="d_lang">...</span></div>
+        </div>
+
+        <div class="card" style="border-left-color: var(--secondary);">
+            <div class="card-title"><span>CẤU HÌNH PHẦN CỨNG</span></div>
+            <div class="row"><span class="label">Vi xử lý (CPU):</span> <span class="value" id="d_cpu">...</span></div>
+            <div class="row"><span class="label">Đồ họa (GPU):</span> <span class="value">WebGL 2.0</span></div>
+            <div class="row"><span class="label">Bộ nhớ RAM:</span> <span class="value" id="d_ram">...</span></div>
+            <div class="row"><span class="label">Màn hình:</span> <span class="value" id="d_screen">...</span></div>
+            <div class="row"><span class="label">Điểm cảm ứng:</span> <span class="value" id="d_touch">...</span></div>
+        </div>
+
+        <div class="card" style="border-left-color: var(--warning);">
+            <div class="card-title"><span>KẾT NỐI & MẠNG</span></div>
+            <div class="row"><span class="label">Địa chỉ IP:</span> <span class="value success" id="d_ip">Đang lấy...</span></div>
+            <div class="row"><span class="label">Nhà mạng:</span> <span class="value" id="d_isp">...</span></div>
+            <div class="row"><span class="label">Loại kết nối:</span> <span class="value" id="d_net">...</span></div>
+            <div class="row"><span class="label">Vị trí:</span> <span class="value" id="d_loc">...</span></div>
+        </div>
+
+        <div class="card" style="border-left-color: var(--success);">
+            <div class="card-title"><span>NĂNG LƯỢNG & CẢM BIẾN</span></div>
+            <div class="row"><span class="label">Phần trăm Pin:</span> <span class="value" id="d_bat">...</span></div>
+            <div class="row"><span class="label">Trạng thái sạc:</span> <span class="value" id="d_charge">...</span></div>
+            <div class="row"><span class="label">Chuyển động:</span> <span class="value" id="d_motion">Ổn định</span></div>
+        </div>
+
+        <div class="card" style="border-left-color: var(--danger);">
+            <div class="card-title"><span>BẢO MẬT & BẢO HÀNH</span></div>
+            <div class="row"><span class="label">Root / Jailbreak:</span> <span class="value success">CHƯA ROOT (AN TOÀN)</span></div>
+            <div class="row"><span class="label">Bảo hành:</span> <span class="value success">CÒN HIỆU LỰC</span></div>
+            <div class="row"><span class="label">Sản xuất tại:</span> <span class="value">Chính hãng</span></div>
+        </div>
+
+        <button class="btn" style="background: #222; margin-bottom: 25px; clip-path: none; border-radius: 8px;" onclick="location.reload()">ĐĂNG XUẤT</button>
+    </div>
+</div>
+
+<script>
+    const KEY_VALID = "check1";
+
+    function login() {
+        let input = document.getElementById('key').value;
+        if(input === KEY_VALID) {
+            // Âm thanh thông báo
+            let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            let osc = audioCtx.createOscillator();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+            osc.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+
+            document.getElementById('scanner').style.display = 'block';
+            
+            setTimeout(() => {
+                document.getElementById('loginScreen').classList.remove('active');
+                document.getElementById('dashScreen').classList.add('active');
+                document.getElementById('scanner').style.display = 'none';
+                loadAllData();
+            }, 1800);
+        } else {
+            alert("KEY KHÔNG CHÍNH XÁC!");
+        }
+    }
+
+    async function loadAllData() {
+        // 1. Thông tin máy
+        const ua = navigator.userAgent;
+        document.getElementById('d_name').innerText = getDeviceName(ua);
+        document.getElementById('d_vendor').innerText = navigator.vendor || "Hệ thống ẩn";
+        document.getElementById('d_os').innerText = navigator.platform;
+        document.getElementById('d_lang').innerText = navigator.language.toUpperCase();
+        
+        // 2. Phần cứng
+        document.getElementById('d_cpu').innerText = (navigator.hardwareConcurrency || "8") + " Nhân (Luồng)";
+        document.getElementById('d_ram').innerText = (navigator.deviceMemory || "4") + " GB (Ước tính)";
+        document.getElementById('d_screen').innerText = window.screen.width + "x" + window.screen.height;
+        document.getElementById('d_touch').innerText = navigator.maxTouchPoints + " Điểm chạm";
+
+        // 3. Pin
+        if (navigator.getBattery) {
+            const battery = await navigator.getBattery();
+            const updateBattery = () => {
+                document.getElementById('d_bat').innerText = Math.round(battery.level * 100) + "%";
+                document.getElementById('d_charge').innerText = battery.charging ? "ĐANG SẠC ⚡" : "KHÔNG";
+            };
+            updateBattery();
+            battery.onlevelchange = updateBattery;
+            battery.onchargingchange = updateBattery;
+        } else {
+            document.getElementById('d_bat').innerText = "Không hỗ trợ";
+        }
+
+        // 4. Mạng & IP
+        if (navigator.connection) {
+            document.getElementById('d_net').innerText = navigator.connection.effectiveType.toUpperCase();
+        } else {
+            document.getElementById('d_net').innerText = "WIFI/LTE";
+        }
+        
+        try {
+            const res = await fetch('https://ipapi.co/json/');
+            const data = await res.json();
+            document.getElementById('d_ip').innerText = data.ip;
+            document.getElementById('d_isp').innerText = data.org;
+            document.getElementById('d_loc').innerText = data.city + ", " + data.country_name;
+        } catch(e) {
+            document.getElementById('d_ip').innerText = "Đang ẩn IP";
+        }
+
+        // 5. Cảm biến chuyển động
+        if (window.DeviceMotionEvent) {
+            window.addEventListener('devicemotion', (event) => {
+                if(Math.abs(event.acceleration.x) > 1.5) {
+                    document.getElementById('d_motion').innerText = "ĐANG DI CHUYỂN";
+                    document.getElementById('d_motion').style.color = "var(--warning)";
+                } else {
+                    document.getElementById('d_motion').innerText = "ỔN ĐỊNH";
+                    document.getElementById('d_motion').style.color = "var(--success)";
+                }
+            });
+        }
+    }
+
+    function getDeviceName(ua) {
+        if (ua.includes("Samsung")) return "Samsung Galaxy";
+        if (ua.includes("iPhone")) return "Apple iPhone";
+        if (ua.includes("Pixel")) return "Google Pixel";
+        if (ua.includes("Oppo")) return "Oppo Smartphone";
+        if (ua.includes("Xiaomi")) return "Xiaomi Mi/Redmi";
+        if (ua.includes("Vivo")) return "Vivo Smartphone";
+        return "Thiết bị Smartphone";
+    }
+</script>
+
+</body>
+</html>
